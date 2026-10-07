@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cinema Livre</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#12303a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#0c1f24;--surface:#12303a;--surface2:#1a4350;--text:#f1f7f6;--muted:#93b3b8;--accent:#ffb454;--accent-ink:#2a1a00;--line:#24505e;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f4f1ea;--surface:#fff;--surface2:#e7e1d3;--text:#10262b;--muted:#5b7479;--line:#d9d2c0}}
+:root[data-theme="light"]{--bg:#f4f1ea;--surface:#fff;--surface2:#e7e1d3;--text:#10262b;--muted:#5b7479;--line:#d9d2c0}
+:root[data-theme="dark"]{--bg:#0c1f24;--surface:#12303a;--surface2:#1a4350;--text:#f1f7f6;--muted:#93b3b8;--line:#24505e}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,serif;line-height:1.5}
+.ui,button,input,select,textarea,.btn{font-family:"Trebuchet MS",system-ui,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px 48px}
+button,select{font-size:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header{display:flex;align-items:center;gap:8px;padding:16px 0 10px}
+.brand{flex:1;font:700 22px Georgia,serif}
+.brand small{display:block;font:400 13px "Trebuchet MS",system-ui,sans-serif;color:var(--muted)}
+.icon{border:0;background:var(--surface2);min-width:40px;height:40px;border-radius:20px;padding:0 12px}
+input,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:16px;margin-bottom:10px}
+input[type=checkbox]{width:auto;margin:3px 8px 0 0}
+.hero{margin:16px 0 12px}
+.hero h1{margin:0 0 6px;font-size:clamp(26px,7vw,42px);line-height:1.1}
+.hero p{margin:0;color:var(--muted);max-width:56ch}
+.bar{display:flex;gap:8px;align-items:center;margin:14px 0 6px}
+.chips{display:flex;gap:8px;overflow-x:auto;flex:1;padding-bottom:4px}
+.chip{border:1px solid var(--line);background:transparent;padding:8px 14px;border-radius:999px;white-space:nowrap;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+select{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px;max-width:120px}
+.count{color:var(--muted);font-size:14px;margin:10px 0 14px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(4,1fr)}}
+.c{position:relative}
+.t{border:0;background:none;padding:0;text-align:left;width:100%}
+.poster{aspect-ratio:2/3;border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.poster b{font-size:19px;line-height:1.15;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+.poster span{font:700 13px "Trebuchet MS",system-ui,sans-serif}
+.poster i{font-style:normal;font-size:40px}
+.meta{margin-top:8px;font-size:13px;color:var(--muted)}
+.meta strong{display:block;color:var(--text);font:700 15px Georgia,serif}
+.fav{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(0,0,0,.45);color:#fff;font-size:18px}
+.fav[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:36px 0}
+dialog{border:0;border-radius:18px;background:var(--surface);color:var(--text);width:min(94vw,500px);padding:0;overflow:hidden}
+dialog::backdrop{background:rgba(0,0,0,.65)}
+.dh{height:140px;padding:16px;display:flex;align-items:flex-end;color:#fff;font-size:26px;font-weight:700;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+.db{padding:16px 18px 20px}
+.db h2{margin:0 0 10px;font-size:22px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;font-size:13px}
+.tags span{background:var(--surface2);padding:3px 10px;border-radius:999px}
+.db p{margin:0 0 12px}
+.lic{font-size:13px;color:var(--muted);border-left:3px solid var(--accent);padding-left:10px;margin-bottom:14px}
+.note{font-size:13px;color:var(--muted);margin:0 0 12px}
+.err{color:#ff8a80;font-size:14px;min-height:20px;margin:0 0 6px}
+.acts{display:flex;gap:8px}
+.btn{flex:1;text-align:center;text-decoration:none;border:1px solid var(--line);background:transparent;padding:12px;border-radius:12px;font-weight:700;font-size:15px;color:var(--text)}
+.btn.p{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.off{opacity:.5;pointer-events:none}
+.panel{margin-top:36px;padding:20px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.panel h2{margin:0 0 4px;font-size:22px}
+.panel>p{margin:0 0 14px;color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chk{display:flex;font-size:14px;margin-bottom:12px}
+.li{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.li span{flex:1}
+.li small{color:var(--muted);display:block}
+.mini{border:1px solid var(--line);background:transparent;border-radius:8px;padding:6px 10px}
+.flinks{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+#lbd h3{margin:14px 0 4px;font-size:16px}
+#lbd p{margin:0 0 8px;font-size:14px}
+#lbd input,#lbd textarea{font-size:15px}
+header{flex-wrap:wrap}
+.brand{min-width:140px}
+select.icon{max-width:108px;padding:0 8px;border-radius:20px}
+.mini[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+dialog{overflow:auto;max-height:92vh}
+.btn:disabled{opacity:.5;pointer-events:none}
+video{width:100%;border-radius:12px;margin-bottom:12px;background:#000}
+.vb{margin-bottom:12px}
+.eps h3{margin:0 0 8px;font-size:16px}
+.eplist{display:grid;gap:6px;margin-bottom:14px;max-height:200px;overflow:auto}
+.ep{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;border:1px solid var(--line);background:transparent;border-radius:10px;padding:10px 12px}
+.ep small{color:var(--muted)}
+.ep[aria-pressed="true"]{border-color:var(--accent);background:var(--surface2)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:18px}
+.stat{background:var(--surface2);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:26px;line-height:1.1}
+.stat span{font-size:13px;color:var(--muted)}
+.stat.warn b{color:var(--accent)}
+.badge{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--surface2);margin-left:6px}
+.badge.ok{background:rgba(80,200,120,.2);color:#6fdc98}
+.badge.no{background:rgba(255,180,84,.2);color:var(--accent)}
+.tools{display:flex;gap:8px;margin:10px 0}
+.tools input{margin:0}
+[hidden]{display:none!important}
+footer{margin-top:20px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Cinema Livre<small>Baixe e assista com liberdade</small></div>
+    <select class="icon ui" id="lang" aria-label="Language"><option value="0">Português</option><option value="1">English</option><option value="2">Español</option><option value="3">Français</option><option value="4">中文</option><option value="5">हिन्दी</option></select>
+    <button class="icon" id="priv" aria-label="Privacy">🛡️</button>
+    <button class="icon ui" id="adm" hidden>Painel</button>
+    <button class="icon" id="me" aria-label="Profile" hidden>👤</button>
+    <button class="icon ui" id="acct">Entrar</button>
+    <button class="icon" id="theme" aria-label="Alternar tema">🌓</button>
+  </header>
+  <input id="q" type="search" placeholder="Buscar título, gênero ou ano" aria-label="Buscar">
+  <section class="hero">
+    <h1>Filmes e séries que você pode baixar de verdade.</h1>
+    <p>Clássicos em domínio público e produções com licença livre. Veja a licença, baixe e guarde seus favoritos.</p>
+  </section>
+  <div class="bar">
+    <div class="chips" id="chips" role="group" aria-label="Tipo"></div>
+    <select id="gen" aria-label="Gênero"></select>
+  </div>
+  <div class="count" id="count"></div>
+  <div class="grid" id="grid"></div>
+
+  <section class="panel" id="votes">
+    <h2 id="vt"></h2><p id="vd"></p>
+    <div class="tools"><input id="vin" maxlength="80"><button class="btn p" id="vadd" style="flex:none"></button></div>
+    <p class="note" id="vmsg" role="alert"></p>
+    <div id="vlist"></div>
+  </section>
+
+  <section class="panel" id="panel" hidden>
+    <h2>Painel do administrador</h2>
+    <p id="pinfo"></p>
+    <div class="stats" id="stats"></div>
+    <h2 style="font-size:18px;margin-bottom:10px">Adicionar ou editar título</h2>
+    <div class="row2">
+      <input id="at" placeholder="Título">
+      <select id="ak" aria-label="Tipo" style="max-width:none;margin-bottom:10px"><option>Filme</option><option>Série</option></select>
+      <input id="ay" type="number" placeholder="Ano">
+      <input id="ag" placeholder="Gênero">
+      <input id="am" placeholder="Duração (ex.: 90 min)">
+      <input id="ai" placeholder="Emoji do pôster" maxlength="4">
+    </div>
+    <textarea id="as" rows="3" placeholder="Sinopse"></textarea>
+    <textarea id="aeps" rows="5" placeholder="Episódios (só para séries). Um por linha: Título | https://link-direto" hidden></textarea>
+    <input id="al" placeholder="Licença (ex.: Domínio público, CC BY)">
+    <input id="alk" type="url" placeholder="Link direto do arquivo (https://...)">
+    <label class="chk"><input type="checkbox" id="ac"> Confirmo que tenho direito de distribuir este conteúdo (domínio público, licença livre ou autorização do autor).</label>
+    <p class="err" id="aerr" role="alert"></p>
+    <div class="acts"><button class="btn" id="areset">Limpar</button><button class="btn p" id="asave">Salvar título</button></div>
+    <div class="acts" style="margin-top:8px"><button class="btn" id="aseed" hidden>Importar exemplos para o Firestore</button></div>
+    <h2 style="margin-top:22px;font-size:18px">Títulos cadastrados</h2>
+    <div class="tools"><input id="asr" type="search" placeholder="Buscar no painel" aria-label="Buscar no painel"></div>
+    <div class="tools">
+      <button class="btn" id="aexp">Exportar backup</button>
+      <button class="btn" id="aimp">Importar backup</button>
+      <input id="afile" type="file" accept="application/json" hidden>
+    </div>
+    <div id="alist"></div>
+    <h2 style="margin-top:22px;font-size:18px">Backups automáticos</h2>
+    <p class="note" id="abinfo"></p>
+    <div id="ablist"></div>
+    <h2 style="margin-top:22px;font-size:18px">Pedidos de remoção</h2>
+    <div id="atlist"></div>
+  </section>
+  <footer><div class="flinks"><button class="mini" id="shr"></button><button class="mini" id="inst" hidden></button><button class="mini" data-lg="terms"></button><button class="mini" data-lg="privacy"></button><button class="mini" data-lg="takedown"></button></div><span id="by">Criado por</span> Agostinho Bernardo Lacerda Vinjoze · <a href="mailto:clansagostinho@gmail.com" style="color:var(--accent)">clansagostinho@gmail.com</a></footer>
+</div>
+
+<dialog id="dlg">
+  <div class="dh" id="dh"></div>
+  <div class="db">
+    <div class="tags" id="tags"></div>
+    <p id="syn"></p>
+    <div class="lic" id="lic"></div>
+    <video id="vid" controls playsinline hidden></video>
+    <p class="err" id="verr" role="alert"></p>
+    <div class="eps" id="eps" hidden><h3>Escolha o episódio</h3><div class="eplist" id="eplist"></div></div>
+    <div class="acts">
+      <button class="btn" id="close">Fechar</button>
+      <button class="btn" id="watch">Assistir</button>
+      <a class="btn p" id="dl" target="_blank" rel="noopener" download>Baixar</a>
+    </div>
+    <button class="mini" id="shareT" style="margin-top:12px"></button>
+    <button class="mini" id="report" style="margin-top:12px"></button>
+  </div>
+</dialog>
+
+<dialog id="pdlg">
+  <div class="db">
+    <h2 id="ptt"></h2><p id="pbd"></p><p class="note" id="ptip"></p>
+    <div class="acts"><button class="btn" id="pclose"></button><button class="btn" id="pdel"></button></div>
+  </div>
+</dialog>
+
+<dialog id="ldlg">
+  <div class="db">
+    <h2 id="ltt"></h2>
+    <div id="lbd"></div>
+    <div class="acts"><button class="btn" id="lcl"></button></div>
+  </div>
+</dialog>
+
+<dialog id="edlg">
+  <div class="db">
+    <h2 id="edt"></h2>
+    <input id="enm" maxlength="40" autocomplete="name">
+    <input id="ect" maxlength="40" autocomplete="country-name">
+    <p class="note" id="egl"></p>
+    <div id="egc" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+    <div class="acts"><button class="btn" id="ecl"></button><button class="btn p" id="esv"></button></div>
+  </div>
+</dialog>
+
+<dialog id="login">
+  <div class="db">
+    <h2>Entrar</h2>
+    <p class="note" id="mode"></p>
+    <input id="em" type="email" placeholder="E-mail" autocomplete="email">
+    <input id="pw" type="password" placeholder="Senha (mínimo 6 caracteres)" autocomplete="current-password">
+    <div id="prof" hidden>
+      <input id="pnm" maxlength="40" autocomplete="name">
+      <input id="pct" maxlength="40" autocomplete="country-name">
+      <p class="note" id="pgl"></p>
+      <div id="pgc" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+    </div>
+    <p class="err" id="err" role="alert"></p>
+    <div class="acts"><button class="btn" id="signup">Criar conta</button><button class="btn p" id="signin">Entrar</button></div>
+    <div class="acts" style="margin-top:8px"><button class="btn" id="forgot"></button><button class="btn" id="lclose">Cancelar</button></div>
+  </div>
+</dialog>
+
+<script>
+/* ===== CONFIGURAÇÃO ===== */
+// Cole a configuração do Firebase. Com apiKey vazio, o site roda em modo demonstração (tudo salvo só neste navegador).
+const FIREBASE_CONFIG={apiKey:"",authDomain:"",projectId:"",appId:""};
+const ADMIN_EMAILS=["clansagostinho@gmail.com","muqueiojose@gmail.com"];
+
+// Exemplos iniciais. Os links diretos vazios podem ser preenchidos no painel.
+const SEED=[
+ {id:"nosferatu",k:"Filme",t:"Nosferatu",y:1922,g:"Terror",m:"94 min",i:"🦇",s:"Um corretor viaja à Transilvânia e traz para casa o conde Orlok, um vampiro que espalha a peste por onde passa.",l:"Domínio público (diretor morreu em 1931).",link:""},
+ {id:"viagem-lua",k:"Filme",t:"Viagem à Lua",y:1902,g:"Ficção científica",m:"14 min",i:"🚀",s:"Astrônomos disparam uma cápsula com um canhão gigante e encontram os habitantes da Lua. Marco do cinema de Georges Méliès.",l:"Domínio público (Méliès morreu em 1938).",link:""},
+ {id:"caligari",k:"Filme",t:"O Gabinete do Dr. Caligari",y:1920,g:"Terror",m:"76 min",i:"🎭",s:"Um hipnotizador de feira usa um sonâmbulo para cometer crimes. Referência do expressionismo alemão.",l:"Domínio público.",link:""},
+ {id:"big-buck-bunny",k:"Filme",t:"Big Buck Bunny",y:2008,g:"Animação",m:"10 min",i:"🐰",s:"Um coelho gigante e gentil dá o troco em três roedores que o provocam. Curta da Blender Foundation.",l:"Creative Commons Atribuição (CC BY).",link:"https://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_720p_h264.mov"},
+ {id:"sintel",k:"Filme",t:"Sintel",y:2010,g:"Animação",m:"15 min",i:"🐉",s:"Uma jovem procura o dragão que ela criou e perdeu. Curta aberto da Blender Foundation.",l:"Creative Commons Atribuição (CC BY).",link:"https://download.blender.org/durian/movies/Sintel.2010.720p.mkv"},
+ {id:"elephants-dream",k:"Filme",t:"Elephants Dream",y:2006,g:"Animação",m:"11 min",i:"🐘",s:"Dois personagens exploram uma máquina enorme e misteriosa. Primeiro filme aberto feito com Blender.",l:"Creative Commons Atribuição (CC BY).",link:"https://archive.org/download/ElephantsDream/ed_1024_512kb.mp4"},
+ {id:"flash-gordon-1936",k:"Série",t:"Flash Gordon",y:1936,g:"Ficção científica",m:"13 capítulos",i:"⚡",s:"Flash Gordon, Dale Arden e o Dr. Zarkov viajam ao planeta Mongo para deter o imperador Ming.",l:"",link:"",eps:Array.from({length:13},(_,i)=>({t:"Capítulo "+(i+1),link:""}))}
+];
+
+/* ===== UTILIDADES ===== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const hue=m=>[...m.t].reduce((a,c)=>(a*31+c.charCodeAt(0))%360,7);
+const bg=m=>`linear-gradient(160deg,hsl(${hue(m)} 60% 38%),hsl(${(hue(m)+40)%360} 55% 18%))`;
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const slug=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"titulo";
+
+/* ===== IDIOMAS (pt, en, es, fr, zh, hi) ===== */
+const LC=["pt","en","es","fr","zh","hi"];
+let lang=ls.get("cl_lang",null);
+if(lang===null){const i=LC.indexOf((navigator.language||"pt").slice(0,2));lang=i<0?0:i}
+const T={
+tag:["Baixe e assista com liberdade","Download and watch freely","Descarga y mira con libertad","Téléchargez et regardez librement","自由下载和观看","आज़ादी से डाउनलोड करें और देखें"],
+search:["Buscar título, gênero ou ano","Search title, genre or year","Buscar título, género o año","Rechercher titre, genre ou année","搜索片名、类型或年份","शीर्षक, शैली या वर्ष खोजें"],
+h1:["Filmes e séries que você pode baixar de verdade.","Movies and series you can really download.","Películas y series que sí puedes descargar.","Des films et séries que vous pouvez vraiment télécharger.","你真正可以下载的电影和剧集。","फ़िल्में और सीरीज़ जिन्हें आप सच में डाउनलोड कर सकते हैं।"],
+sub:["Clássicos em domínio público e produções com licença livre. Veja a licença, baixe e guarde seus favoritos.","Public-domain classics and freely licensed productions. Check the license, download and save your favorites.","Clásicos de dominio público y producciones con licencia libre. Revisa la licencia, descarga y guarda tus favoritos.","Classiques du domaine public et productions sous licence libre. Consultez la licence, téléchargez et gardez vos favoris.","公有领域经典和自由许可作品。查看许可证、下载并收藏你的最爱。","सार्वजनिक डोमेन क्लासिक्स और मुक्त लाइसेंस वाली प्रस्तुतियाँ। लाइसेंस देखें, डाउनलोड करें और पसंदीदा सहेजें।"],
+all:["Todos","All","Todos","Tous","全部","सभी"],
+movies:["Filmes","Movies","Películas","Films","电影","फ़िल्में"],
+series:["Séries","Series","Series","Séries","剧集","सीरीज़"],
+favs:["Favoritos","Favorites","Favoritos","Favoris","收藏","पसंदीदा"],
+allg:["Todos os gêneros","All genres","Todos los géneros","Tous les genres","所有类型","सभी शैलियाँ"],
+n1:["título","title","título","titre","部","शीर्षक"],
+nn:["títulos","titles","títulos","titres","部","शीर्षक"],
+emptyFav:["Você ainda não favoritou nada. Toque no coração de um título.","No favorites yet. Tap the heart on a title.","Aún no tienes favoritos. Toca el corazón de un título.","Pas encore de favoris. Touchez le cœur d'un titre.","还没有收藏。点击标题上的爱心。","अभी कोई पसंदीदा नहीं। किसी शीर्षक के दिल पर टैप करें।"],
+emptyLogin:["Entre na sua conta para ver seus favoritos.","Sign in to see your favorites.","Inicia sesión para ver tus favoritos.","Connectez-vous pour voir vos favoris.","登录后查看收藏。","पसंदीदा देखने के लिए साइन इन करें।"],
+emptyNone:["Nenhum título encontrado. Limpe a busca ou troque o filtro.","No titles found. Clear the search or change the filter.","Ningún título encontrado. Borra la búsqueda o cambia el filtro.","Aucun titre trouvé. Effacez la recherche ou changez de filtre.","未找到片名。请清除搜索或更改筛选。","कोई शीर्षक नहीं मिला। खोज साफ़ करें या फ़िल्टर बदलें।"],
+signin:["Entrar","Sign in","Entrar","Se connecter","登录","साइन इन"],
+signout:["Sair","Sign out","Salir","Se déconnecter","退出","साइन आउट"],
+signup:["Criar conta","Create account","Crear cuenta","Créer un compte","注册","खाता बनाएँ"],
+cancel:["Cancelar","Cancel","Cancelar","Annuler","取消","रद्द करें"],
+close:["Fechar","Close","Cerrar","Fermer","关闭","बंद करें"],
+watch:["Assistir","Watch","Ver","Regarder","观看","देखें"],
+dl:["Baixar","Download","Descargar","Télécharger","下载","डाउनलोड"],
+nolink:["Sem link","No link","Sin enlace","Pas de lien","暂无链接","लिंक नहीं"],
+pick:["Escolha o episódio","Choose an episode","Elige el episodio","Choisissez l'épisode","选择剧集","एपिसोड चुनें"],
+avail:["disponível","available","disponible","disponible","可用","उपलब्ध"],
+soon:["em breve","coming soon","próximamente","bientôt","即将上线","जल्द आ रहा है"],
+lic:["Licença","License","Licencia","Licence","许可证","लाइसेंस"],
+nolic:["não informada","not provided","no indicada","non précisée","未说明","जानकारी नहीं"],
+email:["E-mail","Email","Correo","E-mail","邮箱","ईमेल"],
+pass:["Senha (mínimo 6 caracteres)","Password (min. 6 characters)","Contraseña (mín. 6 caracteres)","Mot de passe (min. 6 caractères)","密码（至少6位）","पासवर्ड (कम से कम 6 अक्षर)"],
+demo:["Modo demonstração: dados só neste navegador.","Demo mode: data stays in this browser.","Modo demostración: datos solo en este navegador.","Mode démo : données uniquement dans ce navigateur.","演示模式：数据仅保存在此浏览器。","डेमो मोड: डेटा केवल इस ब्राउज़र में।"],
+favLogin:["Entre para guardar seus favoritos.","Sign in to save your favorites.","Inicia sesión para guardar tus favoritos.","Connectez-vous pour enregistrer vos favoris.","登录后即可收藏。","पसंदीदा सहेजने के लिए साइन इन करें।"],
+privT:["Privacidade e proteção","Privacy and protection","Privacidad y protección","Confidentialité et protection","隐私与保护","गोपनीयता और सुरक्षा"],
+privB:["Guardamos só o seu e-mail (para o login), seus favoritos e seus votos. Não vendemos nem partilhamos dados. Você pode apagar tudo a qualquer momento.","We only keep your email (for login), your favorites and your votes. We never sell or share data. You can delete everything at any time.","Solo guardamos tu correo (para iniciar sesión), tus favoritos y tus votos. No vendemos ni compartimos datos. Puedes borrar todo cuando quieras.","Nous ne gardons que votre e-mail (pour la connexion), vos favoris et vos votes. Nous ne vendons ni ne partageons vos données. Vous pouvez tout supprimer à tout moment.","我们只保存你的邮箱（用于登录）、收藏和投票。我们不会出售或分享数据。你可以随时删除全部数据。","हम केवल आपका ईमेल (लॉगिन के लिए), पसंदीदा और वोट रखते हैं। हम डेटा न बेचते हैं न साझा करते हैं। आप कभी भी सब कुछ मिटा सकते हैं।"],
+privTip:["Dica: use uma senha única e nunca a partilhe. Só baixe arquivos de fontes que você confia.","Tip: use a unique password and never share it. Only download files from sources you trust.","Consejo: usa una contraseña única y nunca la compartas. Descarga solo de fuentes de confianza.","Conseil : utilisez un mot de passe unique et ne le partagez jamais. Ne téléchargez que depuis des sources sûres.","提示：使用唯一密码且不要分享。只从可信来源下载文件。","सुझाव: अनोखा पासवर्ड रखें और किसी से साझा न करें। केवल भरोसेमंद स्रोतों से फ़ाइलें डाउनलोड करें।"],
+delData:["Apagar meus dados","Delete my data","Borrar mis datos","Supprimer mes données","删除我的数据","मेरा डेटा मिटाएँ"],
+delConf:["Apagar seus favoritos, votos e dados locais e encerrar a sessão?","Delete your favorites, votes and local data, and sign out?","¿Borrar tus favoritos, votos y datos locales y cerrar sesión?","Supprimer vos favoris, votes et données locales et vous déconnecter ?","删除收藏、投票和本地数据并退出登录？","पसंदीदा, वोट और स्थानीय डेटा मिटाकर साइन आउट करें?"],
+report:["Denunciar problema","Report a problem","Denunciar un problema","Signaler un problème","举报问题","समस्या रिपोर्ट करें"],
+voteT:["Vote no próximo filme","Vote for the next movie","Vota por la próxima película","Votez pour le prochain film","为下一部电影投票","अगली फ़िल्म के लिए वोट दें"],
+voteD:["Sugira um título livre (domínio público ou licença aberta) e vote nos que você quer ver aqui.","Suggest a free title (public domain or open license) and vote for the ones you want to see here.","Sugiere un título libre (dominio público o licencia abierta) y vota por los que quieres ver aquí.","Proposez un titre libre (domaine public ou licence ouverte) et votez pour ceux que vous voulez voir ici.","推荐一个自由内容（公有领域或开放许可），并为你想看的投票。","कोई मुफ़्त शीर्षक (सार्वजनिक डोमेन या खुला लाइसेंस) सुझाएँ और जो देखना चाहते हैं उन्हें वोट दें।"],
+voteP:["Título sugerido","Suggested title","Título sugerido","Titre proposé","推荐片名","सुझाया गया शीर्षक"],
+suggest:["Sugerir","Suggest","Sugerir","Proposer","推荐","सुझाएँ"],
+votes:["votos","votes","votos","votes","票","वोट"],
+voteBtn:["Votar","Vote","Votar","Voter","投票","वोट दें"],
+voted:["Votado","Voted","Votado","Voté","已投票","वोट दिया"],
+voteLogin:["Entre para votar ou sugerir.","Sign in to vote or suggest.","Inicia sesión para votar o sugerir.","Connectez-vous pour voter ou proposer.","登录后才能投票或推荐。","वोट या सुझाव के लिए साइन इन करें।"],
+voteEmpty:["Ainda não há sugestões. Seja o primeiro!","No suggestions yet. Be the first!","Aún no hay sugerencias. ¡Sé el primero!","Pas encore de suggestions. Soyez le premier !","还没有推荐。来做第一个吧！","अभी कोई सुझाव नहीं। पहले बनें!"],
+shareL:["Compartilhar","Share","Compartir","Partager","分享","साझा करें"],
+instL:["Instalar app","Install app","Instalar app","Installer l'app","安装应用","ऐप इंस्टॉल करें"],
+termsL:["Termos de uso","Terms of use","Términos de uso","Conditions d'utilisation","使用条款","उपयोग की शर्तें"],
+privL:["Política de privacidade","Privacy policy","Política de privacidad","Politique de confidentialité","隐私政策","गोपनीयता नीति"],
+takeL:["Pedir remoção de conteúdo","Request content removal","Solicitar retirada de contenido","Demander le retrait d'un contenu","申请删除内容","सामग्री हटाने का अनुरोध"],
+copied:["Link copiado.","Link copied.","Enlace copiado.","Lien copié.","链接已复制。","लिंक कॉपी हो गया।"],
+verify:["Confirme o seu e-mail (enviámos um link) para votar ou sugerir. Depois toque de novo.","Confirm your email (we sent a link) to vote or suggest. Then tap again.","Confirma tu correo (enviamos un enlace) para votar o sugerir. Luego toca de nuevo.","Confirmez votre e-mail (lien envoyé) pour voter ou proposer. Puis touchez à nouveau.","请先确认邮箱（已发送链接）再投票或推荐，然后再点一次。","वोट या सुझाव से पहले ईमेल की पुष्टि करें (लिंक भेजा गया)। फिर दोबारा टैप करें।"],
+limit:["Limite de 3 sugestões por pessoa. Apague uma para sugerir outra.","Limit of 3 suggestions per person. Delete one to suggest another.","Límite de 3 sugerencias por persona. Borra una para sugerir otra.","Limite de 3 suggestions par personne. Supprimez-en une pour en proposer une autre.","每人最多3条推荐。删除一条后才能再推荐。","प्रति व्यक्ति 3 सुझाव की सीमा। नया सुझाव देने के लिए एक हटाएँ।"],
+badword:["Esse texto não é permitido. Use um título de filme ou série.","This text is not allowed. Use a movie or series title.","Ese texto no está permitido. Usa un título de película o serie.","Ce texte n'est pas autorisé. Utilisez un titre de film ou de série.","该文字不被允许。请使用电影或剧集名称。","यह टेक्स्ट अनुमत नहीं है। फ़िल्म या सीरीज़ का शीर्षक लिखें।"],
+forgot:["Esqueci a senha","Forgot password","Olvidé mi contraseña","Mot de passe oublié","忘记密码","पासवर्ड भूल गए"],
+sent:["Se esse e-mail tiver conta, enviámos um link para redefinir a senha.","If this email has an account, we sent a link to reset the password.","Si este correo tiene cuenta, enviamos un enlace para restablecer la contraseña.","Si cet e-mail a un compte, nous avons envoyé un lien de réinitialisation.","如果该邮箱已注册，我们已发送重设密码的链接。","यदि इस ईमेल का खाता है, तो हमने पासवर्ड रीसेट लिंक भेज दिया है।"],
+nofb:["Disponível quando o Firebase estiver ativo.","Available once Firebase is enabled.","Disponible cuando Firebase esté activo.","Disponible lorsque Firebase est activé.","启用 Firebase 后可用。","Firebase सक्रिय होने पर उपलब्ध।"],
+editP:["Editar perfil","Edit profile","Editar perfil","Modifier le profil","编辑资料","प्रोफ़ाइल संपादित करें"],
+saveP:["Salvar","Save","Guardar","Enregistrer","保存","सहेजें"],
+pname:["Seu nome (opcional)","Your name (optional)","Tu nombre (opcional)","Votre nom (facultatif)","你的名字（可选）","आपका नाम (वैकल्पिक)"],
+pcountry:["País (opcional)","Country (optional)","País (opcional)","Pays (facultatif)","国家（可选）","देश (वैकल्पिक)"],
+pgenres:["Gêneros que você mais gosta (opcional)","Genres you like most (optional)","Géneros que más te gustan (opcional)","Genres que vous aimez le plus (facultatif)","你最喜欢的类型（可选）","आपकी पसंदीदा शैलियाँ (वैकल्पिक)"],
+privB:["Guardamos o seu e-mail (para o login), favoritos, votos e, se preencher, nome, país e gêneros favoritos. Não vendemos nem partilhamos dados. Você pode apagar tudo a qualquer momento.","We keep your email (for login), favorites, votes and, if you fill them in, name, country and favorite genres. We never sell or share data. You can delete everything at any time.","Guardamos tu correo (para iniciar sesión), favoritos, votos y, si los completas, nombre, país y géneros favoritos. No vendemos ni compartimos datos. Puedes borrar todo cuando quieras.","Nous gardons votre e-mail (pour la connexion), vos favoris, vos votes et, si vous les renseignez, nom, pays et genres préférés. Nous ne vendons ni ne partageons vos données. Vous pouvez tout supprimer à tout moment.","我们保存你的邮箱（用于登录）、收藏、投票，以及你填写的姓名、国家和喜爱类型。我们不会出售或分享数据。你可以随时删除全部数据。","हम आपका ईमेल (लॉगिन के लिए), पसंदीदा, वोट और—यदि भरें—नाम, देश व पसंदीदा शैलियाँ रखते हैं। हम डेटा न बेचते हैं न साझा करते हैं। आप कभी भी सब कुछ मिटा सकते हैं।"],
+created:["Criado por","Created by","Creado por","Créé par","创建者","निर्माता"]
+};
+const t=k=>(T[k]&&T[k][lang])||(T[k]?T[k][0]:k);
+
+/* ===== ESTADO ===== */
+const useFirebase=!!FIREBASE_CONFIG.apiKey;
+const fixItem=m=>m.id==="flash-gordon-1936"?{...m,t:m.t.replace(/\s*\(seriado\)/i,""),l:/confirme antes de usar/i.test(m.l||"")?"":m.l}:m;
+let items=(useFirebase?SEED.slice():ls.get("cl_catalog",SEED)).map(fixItem);
+let user=ls.get("cl_demo_user",null),fbAuth=null,db=null,kind="Todos",genre="Todos",term="",favs=[],editId=null,dbEmpty=false;
+const isAdmin=()=>!!user&&ADMIN_EMAILS.includes(user.email.toLowerCase());
+let profile=null;
+const loadFavs=()=>{favs=user?ls.get("cl_fav_"+user.id,[]):[];profile=user?ls.get("cl_prof_"+user.id,null):null};
+
+/* ===== CATÁLOGO ===== */
+let bkT;
+const queueBackup=()=>{if(!isAdmin())return;clearTimeout(bkT);bkT=setTimeout(autoBackup,1500)};
+async function saveItem(it){
+  if(db)await db.collection("titles").doc(it.id).set(it);
+  else{items=items.filter(x=>x.id!==it.id).concat(it);ls.set("cl_catalog",items)}
+  queueBackup();
+}
+async function removeItem(id){
+  if(db)await db.collection("titles").doc(id).delete();
+  else{items=items.filter(x=>x.id!==id);ls.set("cl_catalog",items)}
+  queueBackup();
+}
+
+/* ===== LISTA ===== */
+function paintChips(){
+  const L={Todos:"all",Filmes:"movies","Séries":"series",Favoritos:"favs"};
+  $("chips").innerHTML=Object.keys(L).map(k=>`<button class="chip" data-k="${k}">${t(L[k])}</button>`).join("");
+}
+function render(){
+  paintChips();
+  const gens=[...new Set(items.map(m=>m.g).filter(Boolean))].sort();
+  if(genre!=="Todos"&&!gens.includes(genre))genre="Todos";
+  $("gen").innerHTML=`<option>${t("allg")}</option>`+gens.map(g=>`<option ${g===genre?"selected":""}>${esc(g)}</option>`).join("");
+  document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.k===kind));
+  const list=items.filter(m=>
+    (kind==="Todos"||(kind==="Filmes"&&m.k==="Filme")||(kind==="Séries"&&m.k==="Série")||(kind==="Favoritos"&&favs.includes(m.id)))&&
+    (genre==="Todos"||m.g===genre)&&(m.t+" "+m.g+" "+m.y).toLowerCase().includes(term))
+    .sort((a,b)=>{const w=m=>profile&&profile.genres&&profile.genres.includes(m.g)?0:1;return w(a)-w(b)||a.t.localeCompare(b.t,"pt")});
+  $("count").textContent=list.length+" "+t(list.length===1?"n1":"nn");
+  const empty=kind==="Favoritos"?t(user?"emptyFav":"emptyLogin"):t("emptyNone");
+  $("grid").innerHTML=list.length?list.map(m=>`
+    <div class="c">
+      <button class="t" data-t="${esc(m.id)}">
+        <div class="poster" style="background:${bg(m)}"><span>${esc(m.y)}</span><i>${esc(m.i||"🎬")}</i><b>${esc(m.t)}</b></div>
+        <div class="meta"><strong>${esc(m.t)}</strong>${esc(m.k)} · ${esc(m.g)} · ${esc(m.m)}</div>
+      </button>
+      <button class="fav" data-f="${esc(m.id)}" aria-pressed="${favs.includes(m.id)}" aria-label="Favoritar ${esc(m.t)}">${favs.includes(m.id)?"♥":"♡"}</button>
+    </div>`).join(""):`<div class="empty">${empty}</div>`;
+  $("acct").textContent=(profile&&profile.name?profile.name.split(" ")[0].slice(0,10)+" · ":"")+t(user?"signout":"signin");
+  $("adm").hidden=!isAdmin();$("me").hidden=!user;
+  if(!isAdmin())$("panel").hidden=true;
+  renderAdmin();
+}
+function renderAdmin(){
+  if(!isAdmin())return;
+  $("pinfo").textContent=useFirebase?"Alterações são salvas no Firestore e aparecem para todos na hora.":"Modo demonstração: alterações ficam só neste navegador. Configure o Firebase para valer para todos.";
+  $("aseed").hidden=!(useFirebase&&dbEmpty);
+  renderTakedowns();renderBackups();
+  const miss=m=>m.eps&&m.eps.length?m.eps.filter(e=>!e.link).length:(m.link?0:1);
+  const eTotal=items.reduce((a,m)=>a+(m.eps?m.eps.length:0),0);
+  const pend=items.reduce((a,m)=>a+miss(m),0);
+  const card=(n,l,w)=>`<div class="stat${w?" warn":""}"><b>${n}</b><span>${l}</span></div>`;
+  $("stats").innerHTML=card(items.length,"Títulos")+card(items.filter(m=>m.k==="Filme").length,"Filmes")+card(items.filter(m=>m.k==="Série").length,"Séries")+card(eTotal,"Episódios")+card(pend,"Links pendentes",pend>0);
+  const f=$("asr").value.toLowerCase().trim();
+  $("alist").innerHTML=items.filter(m=>(m.t+" "+m.g).toLowerCase().includes(f)).sort((a,b)=>a.t.localeCompare(b.t,"pt")).map(m=>{
+    const n=miss(m),eps=m.eps&&m.eps.length?" · "+m.eps.length+" episódios":"";
+    return `<div class="li"><span>${esc(m.t)}<small>${esc(m.k)}${eps}<em class="badge ${n?"no":"ok"}" style="font-style:normal">${n?"faltam "+n+" link"+(n>1?"s":""):"completo"}</em></small></span>
+    <button class="mini" data-e="${esc(m.id)}">Editar</button><button class="mini" data-d="${esc(m.id)}">Apagar</button></div>`}).join("")||`<p class="note">Nenhum título encontrado.</p>`;
+}
+$("chips").onclick=e=>{const b=e.target.closest("[data-k]");if(b){kind=b.dataset.k;render()}};
+$("gen").onchange=e=>{genre=e.target.selectedIndex===0?"Todos":e.target.value;render()};
+$("q").oninput=e=>{term=e.target.value.toLowerCase().trim();render()};
+$("grid").onclick=e=>{
+  const f=e.target.closest("[data-f]");
+  if(f){
+    if(!user){openLogin(t("favLogin"));return}
+    const id=f.dataset.f;favs=favs.includes(id)?favs.filter(x=>x!==id):[...favs,id];ls.set("cl_fav_"+user.id,favs);render();return;
+  }
+  const b=e.target.closest("[data-t]");if(!b)return;
+  const m=items.find(x=>x.id===b.dataset.t);
+  cur=m;sel=0;
+  const hasEps=!!(m.eps&&m.eps.length);
+  if(hasEps){const f=m.eps.findIndex(e=>e.link);sel=f<0?0:f}
+  $("dh").style.background=bg(m);$("dh").textContent=m.t;
+  $("tags").innerHTML=[m.k,m.y,m.g,m.m].map(x=>`<span>${esc(x)}</span>`).join("");
+  $("syn").textContent=m.s||"";$("lic").textContent=m.l?t("lic")+": "+m.l:"";$("lic").hidden=!m.l;
+  $("eps").hidden=!hasEps;stopVid();paintDlg();
+  $("dlg").showModal();
+};
+let cur=null,sel=0;
+const curLink=()=>cur.eps&&cur.eps.length?(cur.eps[sel]||{}).link:cur.link;
+function stopVid(){const v=$("vid");v.pause();v.removeAttribute("src");v.load();v.hidden=true;$("verr").textContent=""}
+function paintDlg(){
+  const l=curLink(),d=$("dl");
+  if(l){d.href=l;d.classList.remove("off");d.textContent=t("dl")}
+  else{d.removeAttribute("href");d.classList.add("off");d.textContent=t("nolink")}
+  $("watch").disabled=!l;
+  if(cur.eps&&cur.eps.length)$("eplist").innerHTML=cur.eps.map((e,i)=>`<button class="ep" data-i="${i}" aria-pressed="${i===sel}"><span>${i+1}. ${esc(e.t)}</span><small>${t(e.link?"avail":"soon")}</small></button>`).join("");
+}
+$("eplist").onclick=e=>{const b=e.target.closest("[data-i]");if(b){sel=+b.dataset.i;stopVid();paintDlg()}};
+$("watch").onclick=()=>{
+  const v=$("vid");$("verr").textContent="";v.src=curLink();v.hidden=false;
+  v.onerror=()=>{$("verr").textContent="Não foi possível reproduzir aqui. Use Baixar.";v.hidden=true};
+  v.play().catch(()=>{});
+};
+$("close").onclick=()=>$("dlg").close();
+$("dlg").addEventListener("close",stopVid);
+
+/* ===== PAINEL ADMIN ===== */
+const F=["at","ak","ay","ag","am","ai","as","al","alk","aeps"];
+function toggleEps(){const s=$("ak").value==="Série";$("aeps").hidden=!s;$("alk").hidden=s}
+function parseEps(){return $("aeps").value.split("\n").map(x=>x.trim()).filter(Boolean).map(x=>{const p=x.split("|");return{t:p[0].trim(),link:(p[1]||"").trim()}})}
+function resetForm(){F.forEach(f=>$(f).value=f==="ak"?"Filme":"");$("ac").checked=false;$("aerr").textContent="";editId=null;$("asave").textContent="Salvar título";toggleEps()}
+$("ak").onchange=toggleEps;
+$("adm").onclick=()=>{
+  $("panel").hidden=false;$("panel").scrollIntoView({behavior:"smooth"});
+  refreshBackups().then(()=>{if(!bkList.some(b=>b.id===today()))autoBackup()});
+};
+$("areset").onclick=resetForm;
+$("asave").onclick=async()=>{
+  const t=$("at").value.trim(),link=$("alk").value.trim();
+  if(!t){$("aerr").textContent="Digite o título.";return}
+  if(link&&!/^https:\/\//i.test(link)){$("aerr").textContent="O link precisa começar com https://";return}
+  if(!$("ac").checked){$("aerr").textContent="Marque a confirmação de direitos para salvar.";return}
+  const it={id:editId||slug(t)+"-"+Date.now().toString(36),k:$("ak").value,t,y:$("ay").value,g:$("ag").value.trim()||"Outros",m:$("am").value.trim(),i:$("ai").value.trim()||"🎬",s:$("as").value.trim(),l:$("al").value.trim(),link:$("ak").value==="Série"?"":link};
+  it.eps=it.k==="Série"?parseEps():[];
+  if(it.eps.some(e=>e.link&&!/^https:\/\//i.test(e.link))){$("aerr").textContent="Os links dos episódios precisam começar com https://";return}
+  if(!(await canWrite("aerr")))return;
+  try{await saveItem(it);resetForm();render()}catch(e){$("aerr").textContent="Não foi possível salvar. Verifique as regras do Firestore."}
+};
+$("alist").onclick=async e=>{
+  const ed=e.target.closest("[data-e]"),de=e.target.closest("[data-d]");
+  if(ed){
+    const m=items.find(x=>x.id===ed.dataset.e);editId=m.id;
+    $("at").value=m.t;$("ak").value=m.k;$("ay").value=m.y;$("ag").value=m.g;$("am").value=m.m;$("ai").value=m.i;$("as").value=m.s;$("al").value=m.l;$("alk").value=m.link||"";$("aeps").value=(m.eps||[]).map(e=>e.t+" | "+(e.link||"")).join("\n");toggleEps();
+    $("asave").textContent="Atualizar título";$("at").focus();
+  }
+  if(de&&confirm("Apagar este título?")){try{await removeItem(de.dataset.d);render()}catch(x){$("aerr").textContent="Não foi possível apagar."}}
+};
+$("aseed").onclick=async()=>{try{for(const it of SEED)await saveItem(it)}catch(e){$("aerr").textContent="Não foi possível importar."}};
+$("asr").oninput=renderAdmin;
+$("aexp").onclick=()=>{
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(items,null,2)],{type:"application/json"}));
+  a.download="cinema-livre-backup.json";document.body.appendChild(a);a.click();a.remove();
+};
+$("aimp").onclick=()=>$("afile").click();
+$("afile").onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const arr=JSON.parse(await f.text());
+    if(!Array.isArray(arr)||arr.some(x=>!x.t))throw 0;
+    for(const x of arr)await saveItem({...x,id:x.id||slug(x.t)+"-"+Date.now().toString(36)});
+    $("aerr").textContent="";render();
+  }catch(x){$("aerr").textContent="Arquivo de backup inválido."}
+  e.target.value="";
+};
+
+/* ===== LOGIN ===== */
+function openLogin(msg){
+  hideProf();$("err").textContent="";$("err").style.color="";
+  $("mode").textContent=(msg?msg+" ":"")+(useFirebase?"":t("demo"));
+  $("login").showModal();
+}
+function setUser(u){
+  user=u;loadFavs();render();
+  if(u&&db&&isAdmin()&&!tkSub){tkSub=true;db.collection("takedowns").onSnapshot(s=>{tks=s.docs.map(d=>({...d.data(),id:d.id}));renderTakedowns()},()=>{})}
+  if(u&&db)db.collection("users").doc(u.id).get().then(d=>{if(d.exists){profile=d.data();ls.set("cl_prof_"+u.id,profile);render()}}).catch(()=>{});
+}
+$("acct").onclick=async()=>{
+  if(!user){openLogin("");return}
+  if(useFirebase&&fbAuth){await fbAuth.signOut();return}
+  ls.set("cl_demo_user",null);setUser(null);
+};
+$("lclose").onclick=()=>$("login").close();
+function showProf(){
+  const gs=[...new Set(items.map(m=>m.g).filter(Boolean))].sort();
+  $("pgc").innerHTML=gs.map(g=>`<button type="button" class="mini" data-g="${esc(g)}" aria-pressed="false">${esc(g)}</button>`).join("");
+  $("prof").hidden=false;
+}
+function hideProf(){$("prof").hidden=true;$("pnm").value="";$("pct").value=""}
+$("pgc").onclick=e=>{const b=e.target.closest("[data-g]");if(b)b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true")};
+const readProf=()=>({name:$("pnm").value.trim().slice(0,40),country:$("pct").value.trim().slice(0,40),genres:[...document.querySelectorAll("#pgc [aria-pressed=true]")].map(b=>b.dataset.g)});
+async function saveProfile(id,p){
+  ls.set("cl_prof_"+id,p);
+  if(db){try{await db.collection("users").doc(id).set(p)}catch(e){}}
+  loadFavs();render();
+}
+const authErr={"auth/invalid-credential":"E-mail ou senha incorretos.","auth/email-already-in-use":"Esse e-mail já tem conta. Use Entrar.","auth/weak-password":"A senha precisa ter pelo menos 6 caracteres.","auth/invalid-email":"E-mail inválido.","auth/network-request-failed":"Sem conexão com o Firebase. Verifique a internet e o domínio autorizado."};
+async function doAuth(create){
+  const em=$("em").value.trim(),pw=$("pw").value;
+  $("err").style.color="";
+  if(!okMail(em)){$("err").textContent="Digite um e-mail válido.";return}
+  if(create&&$("prof").hidden){showProf();$("err").textContent="";return}
+  if(useFirebase){
+    if(!fbAuth){$("err").textContent="Firebase indisponível aqui.";return}
+    if(pw.length<6){$("err").textContent="A senha precisa ter pelo menos 6 caracteres.";return}
+    try{if(create){const c=await fbAuth.createUserWithEmailAndPassword(em,pw);try{await c.user.sendEmailVerification()}catch(e){}await saveProfile(c.user.uid,readProf())}else await fbAuth.signInWithEmailAndPassword(em,pw);$("login").close();$("pw").value="";hideProf()}
+    catch(e){$("err").textContent=authErr[e.code]||"Não foi possível entrar. Tente de novo."}
+  }else{
+    const u={id:em.toLowerCase(),email:em};
+    if(create)ls.set("cl_prof_"+u.id,readProf());
+    ls.set("cl_demo_user",u);setUser(u);$("login").close();hideProf();
+  }
+}
+const okMail=e=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+$("forgot").onclick=async()=>{
+  const em=$("em").value.trim(),e=$("err");
+  e.style.color="";
+  if(!okMail(em)){e.textContent="Digite um e-mail válido.";$("em").focus();return}
+  if(!useFirebase||!fbAuth){e.textContent=t("nofb");return}
+  try{await fbAuth.sendPasswordResetEmail(em)}
+  catch(x){if(x.code!=="auth/user-not-found"){e.textContent=authErr[x.code]||"Não foi possível enviar. Tente de novo.";return}}
+  e.style.color="var(--muted)";e.textContent=t("sent");
+};
+$("me").onclick=()=>{
+  const gs=[...new Set(items.map(m=>m.g).filter(Boolean))].sort(),sel=(profile&&profile.genres)||[];
+  $("enm").value=(profile&&profile.name)||"";$("ect").value=(profile&&profile.country)||"";
+  $("egc").innerHTML=gs.map(g=>`<button type="button" class="mini" data-g="${esc(g)}" aria-pressed="${sel.includes(g)}">${esc(g)}</button>`).join("");
+  $("edlg").showModal();
+};
+$("egc").onclick=e=>{const b=e.target.closest("[data-g]");if(b)b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true")};
+$("ecl").onclick=()=>$("edlg").close();
+$("esv").onclick=async()=>{
+  if(!user)return;
+  await saveProfile(user.id,{name:$("enm").value.trim().slice(0,40),country:$("ect").value.trim().slice(0,40),genres:[...document.querySelectorAll("#egc [aria-pressed=true]")].map(b=>b.dataset.g)});
+  $("edlg").close();
+};
+$("signin").onclick=()=>doAuth(false);
+$("signup").onclick=()=>doAuth(true);
+
+if(useFirebase){
+  const add=src=>new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+  const base="https://cdn.jsdelivr.net/npm/firebase@10.12.2/";
+  add(base+"firebase-app-compat.js").then(()=>add(base+"firebase-auth-compat.js")).then(()=>add(base+"firebase-firestore-compat.js")).then(()=>{
+    firebase.initializeApp(FIREBASE_CONFIG);fbAuth=firebase.auth();db=firebase.firestore();
+    fbAuth.onAuthStateChanged(u=>setUser(u?{id:u.uid,email:u.email,verified:u.emailVerified}:null));
+    db.collection("titles").onSnapshot(s=>{dbEmpty=s.empty;items=(s.empty?SEED.slice():s.docs.map(d=>({...d.data(),id:d.id}))).map(fixItem);render()});
+    db.collection("wishes").onSnapshot(s=>{wishes=s.docs.map(d=>({...d.data(),id:d.id,votes:d.data().votes||[]}));renderVotes()});
+  }).catch(()=>{});
+}
+
+$("theme").onclick=()=>{
+  const r=document.documentElement;
+  const dark=r.dataset.theme?r.dataset.theme==="dark":!matchMedia("(prefers-color-scheme: light)").matches;
+  r.dataset.theme=dark?"light":"dark";
+};
+/* ===== VOTAÇÃO ===== */
+let wishes=useFirebase?[]:ls.get("cl_wishes",[]);
+function renderVotes(){
+  const l=wishes.slice().sort((a,b)=>b.votes.length-a.votes.length);
+  $("vlist").innerHTML=l.length?l.map(w=>{
+    const v=!!user&&w.votes.includes(user.id);
+    return `<div class="li"><span>${esc(w.t)}<small>${w.votes.length} ${t("votes")}</small></span>
+    <button class="mini" data-v="${esc(w.id)}" aria-pressed="${v}">${t(v?"voted":"voteBtn")}</button>${(isAdmin()||(user&&w.by===user.id))?`<button class="mini" data-x="${esc(w.id)}" aria-label="Apagar">🗑</button>`:""}</div>`}).join(""):`<p class="note">${t("voteEmpty")}</p>`;
+}
+async function toggleVote(id){
+  if(!user){openLogin(t("voteLogin"));return}
+  $("vmsg").textContent="";
+  if(!(await canWrite()))return;
+  const w=wishes.find(x=>x.id===id);if(!w)return;
+  const has=w.votes.includes(user.id);
+  try{
+    if(db)await db.collection("wishes").doc(id).update({votes:has?firebase.firestore.FieldValue.arrayRemove(user.id):firebase.firestore.FieldValue.arrayUnion(user.id)});
+    else{w.votes=has?w.votes.filter(x=>x!==user.id):[...w.votes,user.id];ls.set("cl_wishes",wishes)}
+    renderVotes();
+  }catch(e){}
+}
+$("vlist").onclick=async e=>{
+  const v=e.target.closest("[data-v]"),x=e.target.closest("[data-x]");
+  if(v)toggleVote(v.dataset.v);
+  if(x){
+    try{if(db)await db.collection("wishes").doc(x.dataset.x).delete();else{wishes=wishes.filter(w=>w.id!==x.dataset.x);ls.set("cl_wishes",wishes)}renderVotes()}catch(err){}
+  }
+};
+$("vadd").onclick=async()=>{
+  if(!user){openLogin(t("voteLogin"));return}
+  const name=$("vin").value.trim().slice(0,80);
+  $("vmsg").textContent="";
+  if(name.length<2)return;
+  if(blocked(name)){$("vmsg").textContent=t("badword");return}
+  if(!(await canWrite()))return;
+  if(wishes.some(w=>w.t.toLowerCase()===name.toLowerCase())){$("vin").value="";return}
+  const used=wishes.filter(w=>w.by===user.id).map(w=>w.id);
+  const slot=[1,2,3].find(n=>!used.includes(user.id+"_"+n));
+  if(!slot){$("vmsg").textContent=t("limit");return}
+  const w={id:user.id+"_"+slot,t:name,by:user.id,votes:[user.id]};
+  try{
+    if(db)await db.collection("wishes").doc(w.id).set(w);
+    else{wishes.push(w);ls.set("cl_wishes",wishes)}
+    $("vin").value="";renderVotes();
+  }catch(e){}
+};
+
+/* ===== PROTEÇÃO DO USUÁRIO ===== */
+$("priv").onclick=()=>$("pdlg").showModal();
+$("pclose").onclick=()=>$("pdlg").close();
+$("pdel").onclick=async()=>{
+  if(!user){$("pdlg").close();return}
+  if(!confirm(t("delConf")))return;
+  const id=user.id;
+  try{
+    if(db){
+      try{await db.collection("users").doc(id).delete()}catch(e){}
+      for(const w of wishes.filter(w=>w.votes.includes(id)))await db.collection("wishes").doc(w.id).update({votes:firebase.firestore.FieldValue.arrayRemove(id)});
+      try{await fbAuth.currentUser.delete()}catch(e){await fbAuth.signOut()}
+    }else{
+      wishes.forEach(w=>{w.votes=w.votes.filter(x=>x!==id)});ls.set("cl_wishes",wishes);
+      ls.set("cl_demo_user",null);setUser(null);
+    }
+  }catch(e){}
+  try{localStorage.removeItem("cl_fav_"+id);localStorage.removeItem("cl_prof_"+id)}catch(e){}
+  favs=[];profile=null;$("pdlg").close();render();renderVotes();
+};
+$("report").onclick=()=>{
+  if(!cur)return;
+  location.href=`mailto:${ADMIN_EMAILS[0]}?subject=${encodeURIComponent("Report: "+cur.t)}&body=${encodeURIComponent(cur.t+" ("+cur.id+")\n\n")}`;
+};
+
+/* ===== VERIFICAÇÃO E MODERAÇÃO ===== */
+async function canWrite(msgId="vmsg"){
+  if(!useFirebase)return true;
+  const u=fbAuth&&fbAuth.currentUser;
+  if(!u)return false;
+  try{await u.reload()}catch(e){}
+  if(u.emailVerified){try{await u.getIdToken(true)}catch(e){}return true}
+  try{await u.sendEmailVerification()}catch(e){}
+  $(msgId).textContent=t("verify");
+  return false;
+}
+const BAD=["porn","xxx","sexo","nazi","puta","merda","caralho","fuck","shit","cunt","bitch","nigg","http:","https:","www.",".com"];
+const blocked=s=>{const n=s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");return BAD.some(w=>n.includes(w))||/(.)\1{5,}/.test(n)};
+
+/* ===== PÁGINAS LEGAIS E PEDIDO DE REMOÇÃO ===== */
+const MAIL="clansagostinho@gmail.com";
+const LEGAL={
+terms:`<h3>1. O que é o Cinema Livre</h3><p>Um catálogo de filmes e séries de domínio público ou com licença livre, com ligações para assistir e baixar. Criado por Agostinho Bernardo Lacerda Vinjoze.</p>
+<h3>2. Conteúdo</h3><p>Só publicamos conteúdo que, segundo as informações disponíveis, é de domínio público, tem licença livre ou foi autorizado pelo titular. O domínio público varia de país para país: confira a licença do título antes de usar, copiar ou redistribuir.</p>
+<h3>3. A sua conta e conduta</h3><p>Você é responsável pela sua conta e senha. Não envie conteúdo ilegal, ofensivo, enganoso ou que viole direitos de terceiros. Sugestões e votos podem ser removidos, e contas abusivas podem ser bloqueadas.</p>
+<h3>4. Remoção de conteúdo</h3><p>Se você é titular de direitos e acredita que algum título viola os seus direitos, use "Pedir remoção de conteúdo". Analisamos cada pedido e retiramos o título quando houver fundamento.</p>
+<h3>5. Sem garantias</h3><p>O site é oferecido como está, sem garantia de disponibilidade. Os arquivos ficam em servidores de terceiros, cujo conteúdo não controlamos.</p>
+<h3>6. Alterações e contato</h3><p>Podemos atualizar estes termos; continuar a usar o site significa aceitar a nova versão. Contato: ${MAIL}. Atualizado em 06/10/2026.</p>`,
+privacy:`<h3>1. Quem somos</h3><p>O responsável por este site é Agostinho Bernardo Lacerda Vinjoze. Contato: ${MAIL}.</p>
+<h3>2. Dados que guardamos</h3><p>E-mail e senha (a senha é gerida pelo Firebase Authentication e nunca chega até nós); favoritos; votos e sugestões; nome, país e gêneros favoritos, se você preencher; pedidos de remoção (nome, e-mail e mensagem).</p>
+<h3>3. Para quê</h3><p>Para criar a sua conta, lembrar das suas preferências, contar votos e responder a pedidos. Não vendemos nem partilhamos dados para publicidade.</p>
+<h3>4. Onde ficam</h3><p>No Firebase (Google) e, no seu aparelho, no armazenamento do navegador (tema, idioma e favoritos). Não usamos cookies de publicidade.</p>
+<h3>5. Os seus direitos</h3><p>Você pode corrigir o perfil em "Editar perfil" e apagar tudo em 🛡️ &gt; "Apagar meus dados". Para outros pedidos, escreva para ${MAIL}.</p>
+<h3>6. Retenção e menores</h3><p>Guardamos os dados enquanto a conta existir; pedidos de remoção, até serem resolvidos. O site não é dirigido a menores de 13 anos. Atualizado em 06/10/2026.</p>`
+};
+let tks=useFirebase?[]:ls.get("cl_takedowns",[]),tkSub=false;
+function openLegal(k){
+  $("ltt").textContent=t({terms:"termsL",privacy:"privL",takedown:"takeL"}[k]);
+  if(k==="takedown"){
+    $("lbd").innerHTML=`<p>Você é titular de direitos ou o representa? Descreva o título e o motivo. Respondemos pelo e-mail que indicar.</p>
+    <input id="tkn" placeholder="Nome" maxlength="80"><input id="tke" type="email" placeholder="E-mail" maxlength="120">
+    <input id="tkt" placeholder="Título ou endereço da página" maxlength="200">
+    <textarea id="tkr" rows="4" placeholder="Motivo do pedido" maxlength="1500"></textarea>
+    <label class="chk"><input type="checkbox" id="tkc"> Declaro, de boa-fé, que sou o titular dos direitos ou o seu representante autorizado.</label>
+    <p class="err" id="tkm" role="alert"></p><button class="btn p" id="tks" style="width:100%">Enviar pedido</button>
+    <p class="note" style="margin-top:10px">Ou escreva para ${MAIL}.</p>`;
+    $("tks").onclick=sendTakedown;
+  }else $("lbd").innerHTML=LEGAL[k];
+  $("ldlg").showModal();
+}
+async function sendTakedown(){
+  const m=$("tkm"),k={name:$("tkn").value.trim(),email:$("tke").value.trim(),title:$("tkt").value.trim(),reason:$("tkr").value.trim(),at:Date.now()};
+  m.style.color="";
+  if(k.name.length<2||!okMail(k.email)||k.title.length<2||k.reason.length<10){m.textContent="Preencha nome, e-mail válido, título e motivo (mínimo 10 caracteres).";return}
+  if(!$("tkc").checked){m.textContent="Marque a declaração para enviar.";return}
+  if(Date.now()-ls.get("cl_tk_last",0)<60000){m.textContent="Aguarde um minuto antes de enviar outro pedido.";return}
+  try{
+    if(db)await db.collection("takedowns").add(k);
+    else{tks.push({...k,id:String(k.at)});ls.set("cl_takedowns",tks)}
+    ls.set("cl_tk_last",Date.now());
+    m.style.color="var(--muted)";m.textContent="Pedido enviado. Obrigado.";
+    $("tks").disabled=true;
+  }catch(e){m.textContent="Não foi possível enviar. Escreva para "+MAIL+"."}
+}
+document.querySelectorAll("[data-lg]").forEach(b=>b.onclick=()=>openLegal(b.dataset.lg));
+$("lcl").onclick=()=>$("ldlg").close();
+function renderTakedowns(){
+  if(!isAdmin())return;
+  $("atlist").innerHTML=tks.length?tks.map(k=>`<div class="li"><span>${esc(k.title)}<small>${esc(k.name)} · ${esc(k.email)}</small><small>${esc(k.reason)}</small></span><button class="mini" data-k="${esc(k.id)}">Resolvido</button></div>`).join(""):`<p class="note">Nenhum pedido.</p>`;
+}
+$("atlist").onclick=async e=>{
+  const b=e.target.closest("[data-k]");if(!b)return;
+  try{
+    if(db)await db.collection("takedowns").doc(b.dataset.k).delete();
+    else{tks=tks.filter(x=>x.id!==b.dataset.k);ls.set("cl_takedowns",tks);renderTakedowns()}
+  }catch(err){}
+};
+
+/* ===== BACKUP AUTOMÁTICO (diário, últimos 14 dias) ===== */
+let bkList=[];
+const today=()=>new Date().toISOString().slice(0,10);
+async function autoBackup(){
+  if(!isAdmin())return;
+  const data=JSON.stringify(items),day=today();
+  try{
+    if(db){
+      await db.collection("backups").doc(day).set({at:Date.now(),data});
+      const s=await db.collection("backups").get();
+      for(const id of s.docs.map(d=>d.id).sort().reverse().slice(14))await db.collection("backups").doc(id).delete();
+    }else{
+      const b=ls.get("cl_backups",{});b[day]={at:Date.now(),data};
+      Object.keys(b).sort().reverse().slice(14).forEach(k=>delete b[k]);ls.set("cl_backups",b);
+    }
+  }catch(e){}
+  await refreshBackups();
+}
+async function refreshBackups(){
+  try{
+    if(db){const s=await db.collection("backups").get();bkList=s.docs.map(d=>({id:d.id,data:d.data().data||"[]"}))}
+    else{const b=ls.get("cl_backups",{});bkList=Object.keys(b).map(k=>({id:k,data:b[k].data}))}
+    bkList=bkList.map(b=>({...b,n:JSON.parse(b.data).length})).sort((a,b)=>b.id.localeCompare(a.id));
+  }catch(e){}
+  renderBackups();
+}
+function renderBackups(){
+  if(!isAdmin())return;
+  $("abinfo").textContent="Uma cópia por dia (últimos 14 dias), feita quando você altera o catálogo ou abre o painel.";
+  $("ablist").innerHTML=bkList.length?bkList.map(b=>`<div class="li"><span>${esc(b.id)}<small>${b.n} títulos</small></span><button class="mini" data-r="${esc(b.id)}">Restaurar</button></div>`).join(""):`<p class="note">Ainda sem cópias.</p>`;
+}
+$("ablist").onclick=async e=>{
+  const b=e.target.closest("[data-r]");if(!b)return;
+  const bk=bkList.find(x=>x.id===b.dataset.r);
+  if(!bk||!confirm("Restaurar o catálogo de "+bk.id+"? Os títulos atuais serão substituídos."))return;
+  if(!(await canWrite("aerr")))return;
+  try{
+    const arr=JSON.parse(bk.data);
+    for(const it of arr)await saveItem(it);
+    for(const it of items.filter(x=>!arr.some(a=>a.id===x.id)))await removeItem(it.id);
+    render();
+  }catch(err){$("aerr").textContent="Não foi possível restaurar."}
+};
+
+/* ===== COMPARTILHAR E INSTALAR (PWA) ===== */
+async function share(title,text){
+  const url=location.href.split("#")[0];
+  if(navigator.share){try{await navigator.share({title,text,url});return}catch(e){if(e&&e.name==="AbortError")return}}
+  try{await navigator.clipboard.writeText(url);alert(t("copied"))}catch(e){prompt("",url)}
+}
+$("shr").onclick=()=>share("Cinema Livre",t("tag"));
+$("shareT").onclick=()=>{if(cur)share(cur.t+" — Cinema Livre",cur.t)};
+let dip=null;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();dip=e;$("inst").hidden=false});
+$("inst").onclick=async()=>{if(!dip)return;dip.prompt();try{await dip.userChoice}catch(e){}dip=null;$("inst").hidden=true};
+addEventListener("appinstalled",()=>{$("inst").hidden=true});
+if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+/* ===== TROCA DE IDIOMA ===== */
+function applyLang(){
+  document.documentElement.lang=LC[lang];
+  const S=(s,k)=>{const e=document.querySelector(s);if(e)e.textContent=t(k)};
+  S(".brand small","tag");S(".hero h1","h1");S(".hero p","sub");
+  S("#close","close");S("#watch","watch");S(".eps h3","pick");
+  S("#login h2","signin");S("#signin","signin");S("#signup","signup");S("#lclose","cancel");
+  S("#by","created");S("#ptt","privT");S("#pbd","privB");S("#ptip","privTip");S("#pclose","close");S("#pdel","delData");
+  S("#report","report");S("#vt","voteT");S("#vd","voteD");S("#vadd","suggest");
+  $("q").placeholder=t("search");$("em").placeholder=t("email");$("pw").placeholder=t("pass");$("vin").placeholder=t("voteP");$("pnm").placeholder=t("pname");$("pct").placeholder=t("pcountry");$("pgl").textContent=t("pgenres");
+  $("enm").placeholder=t("pname");$("ect").placeholder=t("pcountry");$("egl").textContent=t("pgenres");
+  S("#edt","editP");S("#esv","saveP");S("#ecl","cancel");S("#forgot","forgot");
+  $("me").setAttribute("aria-label",t("editP"));
+  S("#shr","shareL");S("#inst","instL");S("#shareT","shareL");S("#lcl","close");
+  S("[data-lg=terms]","termsL");S("[data-lg=privacy]","privL");S("[data-lg=takedown]","takeL");
+  $("priv").setAttribute("aria-label",t("privT"));
+  render();renderVotes();
+}
+$("lang").onchange=e=>{lang=+e.target.value;ls.set("cl_lang",lang);applyLang()};
+$("lang").value=lang;
+loadFavs();applyLang();
+</script>
+</body>
+</html>
